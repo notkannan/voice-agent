@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "@/config/env";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
     apiKey: env.OPENAI_API_KEY,
 });
+
+const pinecone = new Pinecone({
+    apiKey: env.PINECONE_API_KEY,
+});
+
+const ai = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
+const embeddingModel = ai.getGenerativeModel({ model: "gemini-embedding-001" });
+
+const namespace = pinecone.index("voice-agent-data").namespace("aven-data");
 
 export async function POST(req: NextRequest) {
   if (req.method !== "POST") {
@@ -43,6 +54,19 @@ export async function POST(req: NextRequest) {
       ...messages.slice(0, messages.length - 1),
       { ...lastMessage, content: prompt.choices[0].message.content },
     ];
+
+    const query = modifiedMessage[modifiedMessage.length - 1].content;
+
+    const embedding = await embeddingModel.embedContent(query);
+
+    const response = await namespace.query({
+      vector: embedding.embedding.values,
+      topK: 1,
+      includeValues: true,
+      includeMetadata: true,
+    });
+
+    console.log(response);
 
     if (stream) {
       const completionStream = await openai.chat.completions.create({
