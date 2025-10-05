@@ -12,6 +12,10 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string(),
   FIRECRAWL_API_KEY: z.string(),
   PINECONE_API_KEY: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_REDIRECT_URI: z.string(),
+  GOOGLE_REFRESH_TOKEN: z.string(),
 });
 
 // Function to validate environment variables
@@ -26,6 +30,10 @@ const validateEnv = () => {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
       PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+      GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+      GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
     };
     const parsed = envSchema.parse(env);
     logger.info("Environment variables validated successfully");
